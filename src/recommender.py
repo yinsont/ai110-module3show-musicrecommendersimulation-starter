@@ -47,10 +47,7 @@ class Recommender:
         return "Explanation placeholder"
 
 def load_songs(csv_path: str) -> List[Dict]:
-    """
-    Loads songs from a CSV file.
-    Required by src/main.py
-    """
+    """Load and parse songs from a CSV file with type conversions."""
     print(f"Loading songs from {csv_path}...")
     
     songs = []
@@ -70,13 +67,55 @@ def load_songs(csv_path: str) -> List[Dict]:
     return songs
 
 def recommend_songs(user_prefs: Dict, songs: List[Dict], k: int = 5) -> List[Tuple[Dict, float, str]]:
-    """
-    Functional implementation of the recommendation logic.
-    Required by src/main.py
-    """
-    # TODO: Implement scoring and ranking logic
-    # Expected return format: (song_dict, score, explanation)
-    return []
+    """Score and rank songs by user preference, returning top k recommendations with explanations."""
+    def calculate_score(user: Dict, song: Dict) -> Tuple[float, str]:
+        """Calculate score and explanation for a single song."""
+        score = 0.0
+        reasons = []
+        
+        # Genre match: +2.0
+        if song['genre'].lower() == user['favorite_genre'].lower():
+            score += 2.0
+            reasons.append("genre match")
+        
+        # Mood match: +1.0
+        if song['mood'].lower() == user['favorite_mood'].lower():
+            score += 1.0
+            reasons.append("mood match")
+        
+        # Energy similarity: ×1.5
+        energy_sim = 1.0 - abs(user['target_energy'] - song['energy'])
+        energy_score = energy_sim * 1.5
+        score += energy_score
+        
+        # Valence similarity: ×0.75
+        valence_sim = 1.0 - abs(user['target_energy'] - song['valence'])
+        valence_score = valence_sim * 0.75
+        score += valence_score
+        
+        # Danceability: ×0.5
+        danceability_score = song['danceability'] * 0.5
+        score += danceability_score
+        
+        # Acoustic bonus: +0.25
+        if user.get('likes_acoustic', False):
+            if song['acousticness'] > 0.7:
+                score += 0.25
+                reasons.append("acoustic preference")
+        
+        explanation = " + ".join(reasons) if reasons else "energy/audio profile match"
+        return score, explanation
+    
+    # Pythonic approach: list comprehension with sorted() using key function
+    scored_songs = [
+        (song, *calculate_score(user_prefs, song))
+        for song in songs
+    ]
+    
+    # sorted() returns NEW list (non-mutating); reverse=True for highest→lowest
+    top_k = sorted(scored_songs, key=lambda x: x[1], reverse=True)[:k]
+    
+    return top_k
 
 def calculate_score(user: UserProfile, song: Song) -> float:
     score = 0.0

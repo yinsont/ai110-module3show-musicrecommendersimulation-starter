@@ -18,21 +18,26 @@ def main() -> None:
 
     # Hardstyle & Techno Enthusiast Profile
     user_prefs = {
-        "favorite_genre": "hardstyle",    # Primary: hardstyle, secondary: techno, electronic
-        "favorite_mood": "intense",        # High-octane, adrenaline-driven
-        "target_energy": 0.88,             # Very high energy (hardstyle/techno range)
-        "likes_acoustic": False            # Pure electronic—no acoustic instruments
+        "favorite_genre": "pop", 
+        "favorite_mood": "happy",        
+        "target_energy": 0.88,             
+        "likes_acoustic": False            
     }
 
     recommendations = recommend_songs(user_prefs, songs, k=5)
 
-    print("\nTop recommendations for Hardstyle/Techno Enthusiast:\n")
-    for rec in recommendations:
-        # You decide the structure of each returned item.
-        # A common pattern is: (song, score, explanation)
+    print("\n" + "="*70)
+    genre = user_prefs['favorite_genre'].upper()
+    mood = user_prefs['favorite_mood'].upper()
+    print(f"🎵 TOP RECOMMENDATIONS FOR {genre} LOVERS ({mood} MOOD)")
+    print("="*70 + "\n")
+    
+    for i, rec in enumerate(recommendations, 1):
         song, score, explanation = rec
-        print(f"{song['title']} - Score: {score:.2f}")
-        print(f"Because: {explanation}")
+        print(f"#{i} {song['title']}")
+        print(f"    Artist: {song['artist']}")
+        print(f"    Score:  {score:.2f}/6.25")
+        print(f"    Reasons: {explanation}")
         print()
 
 
