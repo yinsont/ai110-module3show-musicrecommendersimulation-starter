@@ -11,23 +11,20 @@ Your goal is to:
 - Evaluate what your system gets right and wrong
 - Reflect on how this mirrors real world AI recommenders
 
-Replace this paragraph with your own summary of what your version does.
+This project builds a **momentum-based recommendation system** that matches songs to users based on their current emotional and energetic state—rather than fighting their mood, it amplifies it. The system represents songs by their genre, mood, energy level, and emotional tone (valence), then builds user profiles that capture their favorite genre, current mood, target energy, and acoustic preferences. Using a **vibe-matching algorithm**, it scores each song by how well it aligns with the user's energy trajectory. If someone is high-octane and pumped, the system keeps them energized; if someone is sulking, it deepens that immersion with complementary music. Finally, it returns ranked recommendations with personalized explanations for each choice.
+
 
 ---
 
 ## How The System Works
 
-Explain your design in plain language.
+**Song Representation:** Each song in our catalog is defined by six key attributes. The categorical features are genre (pop, lofi, rock, ambient, etc.) and mood (happy, chill, intense, focused, sulking, etc.). The numerical features—all normalized from 0 to 1—are energy (how intense or driving the track is), valence (the musical optimism or emotional positivity), danceability (how suitable it is for movement), and acousticness (the balance between acoustic instruments and electronic production). These features work together to capture both the sonic character and emotional tone of each song.
 
-Some prompts to answer:
+**User Profile:** To make personalized recommendations, we build a simple profile capturing what each user is seeking. It stores their favorite genre, their current mood state, a target energy level, and whether they prefer acoustic or electronic production. This four-piece profile is minimal but powerful—it defines the user's current "vibe" rather than their permanent taste.
 
-- What features does each `Song` use in your system
-  - For example: genre, mood, energy, tempo
-- What information does your `UserProfile` store
-- How does your `Recommender` compute a score for each song
-- How do you choose which songs to recommend
+**Scoring Algorithm:** The core of the system is a weighted scoring function that computes how well each song matches the user. Genre and mood matches are binary (1.0 or 0.0) and each worth 2.0 points since they're the strongest indicators of compatibility. Energy similarity is computed as a distance-based score (songs closer to the target energy score higher) worth 1.5 points. Valence alignment rewards songs whose emotional tone matches the user's mood—sulking users get points for sad, low-valence songs while pumped users get points for bright, high-valence tracks (worth 1.0 point). Finally, acousticness preference adds 0.5 points if the song matches their production style preference. The key design choice: this algorithm amplifies the user's current state rather than fighting it, so someone in a melancholic mood gets music that deepens that immersion.
 
-You can include a simple diagram or bullet list if helpful.
+**Ranking and Selection:** After scoring all songs, we simply sort by score descending and return the top K songs (typically 5). For each recommendation, we also generate a personalized explanation that tells the user why that song matched their profile—whether it was the genre, the energy level, or the emotional tone. This transparency helps users understand the system's reasoning and builds trust in the recommendations.
 
 ---
 
