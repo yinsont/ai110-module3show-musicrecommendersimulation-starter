@@ -106,13 +106,11 @@ def recommend_songs(user_prefs: Dict, songs: List[Dict], k: int = 5) -> List[Tup
         explanation = " + ".join(reasons) if reasons else "energy/audio profile match"
         return score, explanation
     
-    # Pythonic approach: list comprehension with sorted() using key function
     scored_songs = [
         (song, *calculate_score(user_prefs, song))
         for song in songs
     ]
     
-    # sorted() returns NEW list (non-mutating); reverse=True for highest→lowest
     top_k = sorted(scored_songs, key=lambda x: x[1], reverse=True)[:k]
     
     return top_k

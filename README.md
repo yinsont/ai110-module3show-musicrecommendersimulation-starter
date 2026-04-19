@@ -65,11 +65,7 @@ You can add more tests in `tests/test_recommender.py`.
 
 ## Experiments You Tried
 
-Use this section to document the experiments you ran. For example:
-
-- What happened when you changed the weight on genre from 2.0 to 0.5
-- What happened when you added tempo or valence to the score
-- How did your system behave for different types of users
+We tested how changing the genre weight from 2.0 to 0.5 made recommendations less accurate because users were getting mismatched genres when other scores were close, so we kept it at 2.0 for stronger filtering. Adding valence similarity helped the system pick emotionally appropriate songs but required fixing a bug where target_energy was being used instead of a true valence preference. Testing across different user types showed that high-energy users got good recommendations while neutral-energy users experienced ties in rankings, revealing that the algorithm works best when preferences are clearly defined.
 
 ---
 
@@ -93,10 +89,7 @@ Read and complete `model_card.md`:
 
 [**Model Card**](model_card.md)
 
-Write 1 to 2 paragraphs here about what you learned:
-
-- about how recommenders turn data into predictions
-- about where bias or unfairness could show up in systems like this
+Building this recommender taught us that recommendations are really just weighted combinations of user preferences and item features, where the weight you assign to each feature directly changes what gets recommended. We learned that seemingly neutral choices like treating acoustic preference as binary or using target_energy for both energy and valence calculations actually introduce subtle bias that advantages certain users and genres. The system works well when preferences align (someone who likes energetic pop gets great recommendations) but struggles when they conflict (someone who wants calm but acoustic music). This shows how real-world recommenders can accidentally create filter bubbles or underserve users with complex tastes. Most importantly, we realized that transparently explaining why recommendations were made is as important as the algorithm itself, because users need to understand and trust the system to find it helpful.
 
 
 ---
@@ -148,6 +141,7 @@ Describe your dataset.
 - What kinds of genres or moods are represented
 - Whose taste does this data mostly reflect
 
+The dataset contains 100 songs with no additions or removals from the original dataset. The catalog spans diverse genres including pop, rock, lofi, ambient, jazz, soul, metal, classical, reggae, synthwave, electronic, hip-hop, indie pop, indie rock, funk, folk, k-pop, dubstep, bossa nova, punk, grunge, afrobeats, synthpop, downtempo, blues, gospel, and house, with moods ranging across happy, chill, intense, focused, moody, relaxed, energetic, dreamy, playful, romantic, aggressive, inspirational, adventurous, introspective, peaceful, melancholic, contemplative, and more. This diverse dataset reflects a global, genre-agnostic listener who values mood and energy states across Western, electronic, and world music traditions.
 ---
 
 ## 5. Strengths
@@ -158,6 +152,8 @@ You can think about:
 - Situations where the top results "felt right"
 - Particular user profiles it served well
 - Simplicity or transparency benefits
+
+The recommender works best for users with stable, clearly defined preferences—someone seeking energetic pop tracks or relaxing lofi study music consistently gets relevant results because the algorithm matches both genre and energy effectively. The system excels at transparency since recommendations include simple explanations showing whether matches came from genre alignment, mood compatibility, or audio characteristics, which builds user trust. The weighting scheme captures real patterns in music taste: genre and mood act as strong filters while energy and valence create nuanced refinement, so recommendations feel both reliable and personalized rather than random.
 
 ---
 
@@ -171,7 +167,7 @@ Some prompts:
 - Is it biased toward high energy or one genre by default
 - How could this be unfair if used in a real product
 
-
+The recommender treats acoustic preference as binary rather than nuanced, potentially misserving users who want sometimes-acoustic music, and lacks support for artist preferences, release dates, or listening history, which real recommenders track. With only 18 songs, the system cannot recommend discovery beyond this tiny catalog and may overweight genre matching for flexible listeners who actually prefer algorithmic serendipity. Smaller moods like "introspective" have fewer songs available, starving users seeking that vibe, and if deployed as a real product, the algorithm could trap users in narrow genre bubbles or inadvertently exclude emerging artists whose music doesn't fit the pre-computed features—creating a fairness issue where recommendations only reinforce what already exists in the data rather than helping users discover new territory.
 ---
 
 ## 7. Evaluation
@@ -183,7 +179,7 @@ Examples:
 - You compared your simulation to what a real app like Spotify or YouTube tends to recommend
 - You wrote tests for your scoring logic
 
-You do not need a numeric metric, but if you used one, explain what it measures.
+With multiple user profiles, you can examine how some weights are favored more than others in multiple different situations. The reason why the music that is selected by spotify isn't always accurate to what you want is due to it being unable to process what you exactly wants. It will look around for something similar but take that information to narrow down what you are looking for. Sometimes things are exactly what you are looking for (in terms of calculated scoring) but it may not be what you really want. 
 
 ---
 
@@ -197,6 +193,7 @@ Examples:
 - Balance diversity of songs instead of always picking the closest match
 - Use more features, like tempo ranges or lyric themes
 
+I want to add subgenres into the mix. There are music genres such as Folk Pop or Hard Techno that isn't listed. There needs to be more categories as well. We can also go by artist so that people can find new artists to check out if they like the music.
 ---
 
 ## 9. Personal Reflection
@@ -207,7 +204,11 @@ A few sentences about what you learned:
 - How did building this change how you think about real music recommenders
 - Where do you think human judgment still matters, even if the model seems "smart"
 
+Small design choices like whether acoustic is on or off ended up pushing recommendations in unexpected directions, showing me that algorithms have hidden bias even when they seem fair. I learned that recommenders don't find your real taste—they just amplify patterns from the data and weights you give them. Human judgment still matters because only people understand why you want certain music in the moment, and no algorithm can capture that kind of emotional intuition.
+
 ![alt text](image.png)
+
+![alt text](image-1.png)
 
 flowchart TD
     Start([Start]) --> Input["📥 INPUT: User Profile<br/>favorite_genre<br/>favorite_mood<br/>target_energy<br/>likes_acoustic"]
