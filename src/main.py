@@ -15,12 +15,17 @@ from recommender import load_songs, recommend_songs
 def main() -> None:
     songs = load_songs("data/songs.csv") 
 
-    # Starter example profile
-    user_prefs = {"genre": "pop", "mood": "happy", "energy": 0.8}
+    # Hardstyle & Techno Enthusiast Profile
+    user_prefs = {
+        "favorite_genre": "hardstyle",    # Primary: hardstyle, secondary: techno, electronic
+        "favorite_mood": "intense",        # High-octane, adrenaline-driven
+        "target_energy": 0.88,             # Very high energy (hardstyle/techno range)
+        "likes_acoustic": False            # Pure electronic—no acoustic instruments
+    }
 
     recommendations = recommend_songs(user_prefs, songs, k=5)
 
-    print("\nTop recommendations:\n")
+    print("\nTop recommendations for Hardstyle/Techno Enthusiast:\n")
     for rec in recommendations:
         # You decide the structure of each returned item.
         # A common pattern is: (song, score, explanation)

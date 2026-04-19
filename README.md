@@ -125,6 +125,7 @@ Example:
 
 > This model suggests 3 to 5 songs from a small catalog based on a user's preferred genre, mood, and energy level. It is for classroom exploration only, not for real users.
 
+This model is meant to select or suggests music from the current database that matches your present mood and energy level. This can work variously, for people that need calm music for studying or music that's high octane to keep the party alive. 
 ---
 
 ## 3. How It Works (Short Explanation)
@@ -135,8 +136,7 @@ Describe your scoring logic in plain language.
 - What information about the user does it use
 - How does it turn those into a number
 
-Try to avoid code in this section, treat it like an explanation to a non programmer.
-
+The recommender scores each song using a weighted formula that combines categorical matching and numerical similarity. Genre and mood matches are binary (1.0 or 0.0 points) and weighted at 2.0 each—your top priorities that directly indicate compatibility. Energy similarity is distance-based, giving full points to songs at your target energy (0.88) and proportionally fewer points the further away they get, weighted at 1.5 to capture the momentum-matching principle that keeps your vibe going. Valence alignment rewards songs whose emotional tone matches your mood; for your "intense" preference, this means lower valence (0.35 target) scores higher, reinforcing the dark, driving feel you want. Acousticness preference adds a smaller 0.5-weight bonus if the song matches your electronic-only production style (target ~0.15 acousticness). The total raw score (typically 0–6.5) is then normalized to 0–100 for display. After scoring all songs, they're ranked descending and the top K are returned with personalized explanations showing which features made each song match. This design amplifies your current state rather than fighting it—hardstyle and techno have that high-octane, dark intensity, and the algorithm reinforces those preferences while still allowing excellent matches from adjacent genres if energy and acousticness align.
 ---
 
 ## 4. Data
@@ -170,6 +170,7 @@ Some prompts:
 - Does it treat all users as if they have the same taste shape
 - Is it biased toward high energy or one genre by default
 - How could this be unfair if used in a real product
+
 
 ---
 
@@ -206,3 +207,35 @@ A few sentences about what you learned:
 - How did building this change how you think about real music recommenders
 - Where do you think human judgment still matters, even if the model seems "smart"
 
+
+
+flowchart TD
+    Start([Start]) --> Input["📥 INPUT: User Profile<br/>favorite_genre<br/>favorite_mood<br/>target_energy<br/>likes_acoustic"]
+    
+    Input --> LoadCSV["📂 Load CSV<br/>↓<br/>songs_list = 18 songs"]
+    
+    LoadCSV --> InitScores["Initialize<br/>scored_songs = []"]
+    
+    InitScores --> Loop{"More songs<br/>in CSV?"}
+    
+    Loop -->|Yes| FetchSong["🎵 Fetch next song<br/>from CSV"]
+    
+    FetchSong --> Score["⚙️ PROCESS: Calculate Score<br/>──────────<br/>genre_match: +2.0?<br/>mood_match: +1.0?<br/>energy_sim: ×1.5<br/>valence_sim: ×0.75<br/>danceability: ×0.5<br/>tempo_prox: +0.25?<br/>acoustic_bonus: +0.25?"]
+    
+    Score --> Store["📋 Store in Memory<br/>scored_songs.append<br/>(song, total_score)"]
+    
+    Store --> Loop
+    
+    Loop -->|No| Sort["🔄 Sort by Score<br/>scored_songs.sort<br/>descending"]
+    
+    Sort --> Rank["🏆 Rank Top K<br/>top_k_songs = ranked[0:k]"]
+    
+    Rank --> Output["📤 OUTPUT: Ranked List<br/>Position 1: Song + Score<br/>Position 2: Song + Score<br/>...<br/>Position K: Song + Score"]
+    
+    Output --> End([End])
+    
+    style Input fill:#e1f5ff
+    style Score fill:#fff3e0
+    style Output fill:#e8f5e9
+    style Start fill:#f3e5f5
+    style End fill:#f3e5f5

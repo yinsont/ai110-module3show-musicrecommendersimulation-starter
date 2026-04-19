@@ -62,3 +62,30 @@ def recommend_songs(user_prefs: Dict, songs: List[Dict], k: int = 5) -> List[Tup
     # TODO: Implement scoring and ranking logic
     # Expected return format: (song_dict, score, explanation)
     return []
+
+def calculate_score(user: UserProfile, song: Song) -> float:
+    score = 0.0
+    
+    # Categorical matches
+    if song.genre.lower() == user.favorite_genre.lower():
+        score += 2.0
+    if song.mood.lower() == user.favorite_mood.lower():
+        score += 1.0
+    
+    # Continuous similarities
+    energy_similarity = 1.0 - abs(user.target_energy - song.energy)
+    score += energy_similarity * 1.5
+    
+    valence_similarity = 1.0 - abs(user.target_energy - song.valence)  # approximate
+    score += valence_similarity * 0.75
+    
+    score += song.danceability * 0.5
+    
+    # Optional fine-tuning
+    if abs(user.target_tempo - song.tempo_bpm) <= 15:  # within 15 bpm
+        score += 0.25
+    
+    if user.likes_acoustic and song.acousticness > 0.7:
+        score += 0.25
+    
+    return score
